@@ -6,8 +6,8 @@ ARG BASE_IMAGE=nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
 FROM $BASE_IMAGE
 
 ARG INSTALL_TFMA=yes
-ARG TF_PACKAGE=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-1.8.0-cp36-cp36m-linux_x86_64.whl
-ARG TF_PACKAGE_PY_27=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-1.8.0-cp27-none-linux_x86_64.whl
+ARG TF_PACKAGE=https://github.com/mind/wheels/releases/download/tf1.6-gpu-cuda91/tensorflow-1.6.0-cp36-cp36m-linux_x86_64.whl
+ARG TF_PACKAGE_PY_27=https://github.com/mind/wheels/releases/download/tf1.6-gpu-cuda91/tensorflow-1.6.0-cp27-cp27mu-linux_x86_64.whl
 
 
 USER root
