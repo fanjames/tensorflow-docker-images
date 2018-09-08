@@ -6,8 +6,9 @@ ARG BASE_IMAGE=nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
 FROM $BASE_IMAGE
 
 ARG INSTALL_TFMA=yes
-ARG TF_PACKAGE=https://mirrors.ustc.edu.cn/pypi/web/packages/59/41/ba6ac9b63c5bfb90377784e29c4f4c478c74f53e020fa56237c939674f2d/tensorflow_gpu-1.8.0-cp36-cp36m-manylinux1_x86_64.whl#sha256=f680d57901e39ea0d4133f625ab0c3c05f0231e3deda860cb121ed10ae7b2ed7
-ARG TF_PACKAGE_PY_27=https://mirrors.ustc.edu.cn/pypi/web/packages/9d/77/fff8c99f9a54823b95f3160b110c96c0c6d6b299e8df51a17dbc488455d8/tensorflow_gpu-1.8.0-cp27-cp27mu-manylinux1_x86_64.whl#sha256=e84640b27d472507a28025fe4abc63c9799328e3d4f90ca81e7fc72aa70534a3
+ARG TF_PACKAGE=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-1.8.0-cp36-cp36m-linux_x86_64.whl
+ARG TF_PACKAGE_PY_27=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-1.8.0-cp27-none-linux_x86_64.whl
+
 
 USER root
 
@@ -88,7 +89,7 @@ RUN cd /tmp && \
     conda clean -tipsy
 
 # NOTE: Beyond this point be careful of breaking out
-# or otherwise adding new layers with RUN, chown, etc. 
+# or otherwise adding new layers with RUN, chown, etc.
 # The image size can grow significantly.
 
 # Install base python3 packages
