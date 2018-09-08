@@ -1,7 +1,7 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-ARG BASE_IMAGE=nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
+ARG BASE_IMAGE=nvidia/cuda:9.1-cudnn7-devel-ubuntu16.04
 
 FROM $BASE_IMAGE
 
