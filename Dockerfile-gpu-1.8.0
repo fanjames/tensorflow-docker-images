@@ -79,10 +79,10 @@ RUN cd /tmp && \
 ENV MINICONDA_VERSION 4.5.11
 RUN cd /tmp && \
     mkdir -p $CONDA_DIR && \
-    wget --quiet https://repo.continuum.io/miniconda/Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh && \
-    echo "458324438b7b0e5afcc272b63d44195d *Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
-    /bin/bash Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p ${CONDA_DIR} && \
-    rm Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    echo "e1045ee415162f944b6aebfe560b8fee *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
+    /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p ${CONDA_DIR} && \
+    rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
     conda config --system --prepend channels conda-forge && \
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
@@ -101,25 +101,34 @@ COPY --chown=jovyan:users requirements.txt /tmp
 RUN pip install --upgrade pip && \
     pip --no-cache-dir install \
     # Tensorflow
-    ${TF_PACKAGE_PY_27} \
+    ${TF_PACKAGE} \
     # Jupyter Stuff
-    jupyter jupyterhub jupyterlab && \
+    jupyter \
+    jupyterhub \
+    jupyterlab \
     # Cleanup
-    conda clean -tipsy && \
+    && conda clean -tipsy
+
+RUN conda create -n py2 python=2 && \
+    source activate py2 && \
+    pip install --upgrade pip && \
     pip --no-cache-dir install \
     ipykernel \
+    # Tensorflow
+    ${TF_PACKAGE_PY_27} \
     # Tensorflow packages which only supports python 2
-    tensorflow-transform  tensorflow-serving-api \
+    tensorflow-transform \
+    tensorflow-serving-api \
     # ipykernel for python 2 jupyter notebook kernel
     && \
     python -m ipykernel install && \
     # tensorflow-model-analysis is only supported for TF 1.6 and above
     if [[ $INSTALL_TFMA == "yes" ]]; then \
-      pip install --no-cache-dir tensorflow-model-analysis && \
-      # We use --system because if we don't the config is written to the home directory
-      # and the changes are lost when we mount a PV over them.
-      jupyter nbextension install --py --system --symlink tensorflow_model_analysis && \
-      jupyter nbextension enable --py --system tensorflow_model_analysis ; \
+        pip install --no-cache-dir tensorflow-model-analysis && \
+        # We use --system because if we don't the config is written to the home directory
+        # and the changes are lost when we mount a PV over them.
+        jupyter nbextension install --py --system --symlink tensorflow_model_analysis && \
+        jupyter nbextension enable --py --system tensorflow_model_analysis ; \
     fi \
     && \
     # Install jupyterlab-manager
@@ -131,15 +140,18 @@ RUN pip install --upgrade pip && \
     pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Reinstall Tensorflow due to the unknown bugs
     pip uninstall tensorflow \
+    pip --no-cache-dir install ${TF_PACKAGE} \
+    source activate py2 && \
+    pip --no-cache-dir install -r /tmp/requirements.txt && \
+    # Reinstall Tensorflow due to the unknown bugs
+    pip uninstall tensorflow \
     pip --no-cache-dir install ${TF_PACKAGE_PY_27} \
     # Do chown in this layer for significant size savings
     chown -R ${NB_USER}:users $HOME && \
     chown -R ${NB_USER}:users $CONDA_DIR
 
 # Add basic config
-COPY --chown=jovyan:users  jupyter_notebook_config.py /tmp
-COPY --chown=jovyan:users mnist-data/ /home/jovyan/mnist-data
-COPY --chown=jovyan:users Tensorflow-examples/ /home/jovyan/Tensorflow-examples
+COPY --chown=jovyan:users jupyter_notebook_config.py /tmp
 
 # Wipe $HOME for PVC detection later
 WORKDIR $HOME
@@ -148,6 +160,10 @@ RUN rm -fr $(ls -A $HOME)
 # Copy over init scripts
 COPY --chown=jovyan:users start-singleuser.sh start-notebook.sh start.sh pvc-check.sh /usr/local/bin/
 RUN chmod a+rx /usr/local/bin/*
+
+# Copy the repos of mnist data and tensorflow examples
+COPY --chown=jovyan:users mnist-data/ /home/jovyan/mnist-data
+COPY --chown=jovyan:users Tensorflow-examples/ /home/jovyan/Tensorflow-examples
 
 # Configure container startup
 EXPOSE 8888
