@@ -28,25 +28,25 @@ ENV PATH $CONDA_DIR/bin:$PATH
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update && apt-get install -yq --no-install-recommends \
-  apt-transport-https \
-  build-essential \
-  bzip2 \
-  ca-certificates \
-  curl \
-  g++ \
-  git \
-  gnupg \
-  graphviz \
-  locales \
-  lsb-release \
-  openssh-client \
-  sudo \
-  unzip \
-  vim \
-  wget \
-  zip \
-  && apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+    apt-transport-https \
+    build-essential \
+    bzip2 \
+    ca-certificates \
+    curl \
+    g++ \
+    git \
+    gnupg \
+    graphviz \
+    locales \
+    lsb-release \
+    openssh-client \
+    sudo \
+    unzip \
+    vim \
+    wget \
+    zip \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
@@ -62,7 +62,7 @@ RUN useradd -M -s /bin/bash -N -u $NB_UID $NB_USER && \
     chown -R ${NB_USER}:users /usr/local/bin && \
     mkdir -p $HOME
 
-#RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
+# RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
 #    echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
 #    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
 #    apt-get update && \
@@ -116,8 +116,6 @@ RUN conda create -n py2 python=2 && \
     pip install --upgrade pip && \
     pip --no-cache-dir install \
     ipykernel \
-    # Tensorflow
-    ${TF_PACKAGE_PY_27} \
     # Tensorflow packages which only supports python 2
     tensorflow-transform \
     tensorflow-serving-api \
@@ -140,6 +138,9 @@ RUN conda create -n py2 python=2 && \
     jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
     # Install common packages from requirements.txt for both python2 and python3
     pip --no-cache-dir install -r /tmp/requirements.txt && \
+    # Reinstall Tensorflow due to the unknown bugs
+    pip uninstall tensorflow \
+    conda install --quiet --yes ${TF_PACKAGE_PY_27} \
     source activate py2 && \
     pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Do chown in this layer for significant size savings
