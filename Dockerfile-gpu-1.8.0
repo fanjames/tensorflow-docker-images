@@ -79,10 +79,10 @@ RUN cd /tmp && \
 ENV MINICONDA_VERSION 4.5.11
 RUN cd /tmp && \
     mkdir -p $CONDA_DIR && \
-    wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
-    echo "e1045ee415162f944b6aebfe560b8fee *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
-    /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p ${CONDA_DIR} && \
-    rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    wget --quiet https://repo.continuum.io/miniconda/Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    echo "458324438b7b0e5afcc272b63d44195d *Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
+    /bin/bash Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p ${CONDA_DIR} && \
+    rm Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh && \
     conda config --system --prepend channels conda-forge && \
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
@@ -101,7 +101,7 @@ COPY --chown=jovyan:users requirements.txt /tmp
 RUN pip install --upgrade pip && \
     pip --no-cache-dir install \
     # Tensorflow
-    ${TF_PACKAGE} \
+    ${TF_PACKAGE_PY_27} \
     # Jupyter Stuff
     jupyter jupyterhub jupyterlab && \
     # Cleanup
@@ -109,7 +109,7 @@ RUN pip install --upgrade pip && \
     pip --no-cache-dir install \
     ipykernel \
     # Tensorflow packages which only supports python 2
-    # tensorflow-transform  tensorflow-serving-api \
+    tensorflow-transform  tensorflow-serving-api \
     # ipykernel for python 2 jupyter notebook kernel
     && \
     python -m ipykernel install && \
@@ -129,9 +129,9 @@ RUN pip install --upgrade pip && \
     jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
     # Install common packages from requirements.txt for both python2 and python3
     pip --no-cache-dir install -r /tmp/requirements.txt && \
-    # # Reinstall Tensorflow due to the unknown bugs
-    # pip uninstall tensorflow \
-    # pip --no-cache-dir install ${TF_PACKAGE} \
+    # Reinstall Tensorflow due to the unknown bugs
+    pip uninstall tensorflow \
+    pip --no-cache-dir install ${TF_PACKAGE_PY_27} \
     # Do chown in this layer for significant size savings
     chown -R ${NB_USER}:users $HOME && \
     chown -R ${NB_USER}:users $CONDA_DIR
