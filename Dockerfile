@@ -116,6 +116,7 @@ RUN conda create -n py2 python=2 && \
     pip install --upgrade pip && \
     pip --no-cache-dir install \
     ipykernel \
+    ${TF_PACKAGE_PY_27} \
     # Tensorflow packages which only supports python 2
     tensorflow-transform \
     tensorflow-serving-api \
@@ -140,7 +141,7 @@ RUN conda create -n py2 python=2 && \
     pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Reinstall Tensorflow due to the unknown bugs
     pip uninstall tensorflow \
-    conda install --quiet --yes ${TF_PACKAGE_PY_27} \
+    pip --no-cache-dir install ${TF_PACKAGE_PY_27} \
     source activate py2 && \
     pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Do chown in this layer for significant size savings
