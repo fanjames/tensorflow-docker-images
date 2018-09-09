@@ -109,7 +109,7 @@ RUN pip install --upgrade pip && \
     pip --no-cache-dir install \
     ipykernel \
     # Tensorflow packages which only supports python 2
-    tensorflow-transform  tensorflow-serving-api \
+    # tensorflow-transform  tensorflow-serving-api \
     # ipykernel for python 2 jupyter notebook kernel
     && \
     python -m ipykernel install && \
