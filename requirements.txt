@@ -13,6 +13,7 @@ sklearn
 pandas
 keras
 matplotlib
+scipy
 
 # Google Cloud related packages
 google-cloud
