@@ -140,12 +140,12 @@ RUN conda create -n py2 python=2 && \
     pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Reinstall Tensorflow due to the unknown bugs
     pip uninstall tensorflow && \
-    pip --no-cache-dir install ${TF_PACKAGE} && \
+    conda install --quiet --yes install ${TF_PACKAGE} && \
     source activate py2 && \
     pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Reinstall Tensorflow due to the unknown bugs
     pip uninstall tensorflow && \
-    pip --no-cache-dir install ${TF_PACKAGE_PY_27} && \
+    conda install --quiet --yes ${TF_PACKAGE_PY_27} && \
     # Do chown in this layer for significant size savings
     chown -R ${NB_USER}:users $HOME && \
     chown -R ${NB_USER}:users $CONDA_DIR
