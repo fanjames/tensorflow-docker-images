@@ -99,7 +99,7 @@ RUN pip install --upgrade pip && \
     conda install --quiet --yes ${TF_PACKAGE} && \
     pip --no-cache-dir install \
     # Tensorflow
-    ${TF_PACKAGE} \
+    # ${TF_PACKAGE} \
     # Jupyter Stuff
     jupyter \
     jupyterhub \
