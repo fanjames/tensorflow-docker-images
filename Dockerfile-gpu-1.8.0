@@ -141,13 +141,13 @@ COPY --chown=jovyan:users requirements.txt /tmp
 # Install common packages from requirements.txt for both python2 and python3
 RUN pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Reinstall Tensorflow due to the unknown bugs
-    # pip uninstall tensorflow && \
-    # conda install --quiet --yes install ${TF_PACKAGE} && \
+    pip uninstall tensorflow && \
+    pip --no-cache-dir install ${TF_PACKAGE} && \
     source activate py2 && \
     pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Reinstall Tensorflow due to the unknown bugs
-    # pip uninstall tensorflow && \
-    # conda install --quiet --yes ${TF_PACKAGE_PY_27} && \
+    pip uninstall tensorflow && \
+    pip --no-cache-dir install ${TF_PACKAGE_PY_27} && \
 
 # Add basic config
 COPY --chown=jovyan:users jupyter_notebook_config.py /tmp
