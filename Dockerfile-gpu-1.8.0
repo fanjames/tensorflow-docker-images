@@ -8,8 +8,8 @@ FROM $BASE_IMAGE
 ARG INSTALL_TFMA=yes
 # ARG TF_PACKAGE=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.8.0-cp36-cp36m-linux_x86_64.whl
 # ARG TF_PACKAGE_PY_27=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.8.0-cp27-none-linux_x86_64.whl
-ARG TF_PACKAGE=tensorflow-gpu==1.8.0
-ARG TF_PACKAGE_PY_27=tensorflow-gpu==1.8.0
+ARG TF_PACKAGE=tensorflow-gpu=1.8.0
+ARG TF_PACKAGE_PY_27=tensorflow-gpu=1.8.0
 
 USER root
 
@@ -96,6 +96,7 @@ RUN cd /tmp && \
 
 # Install base python3 packages
 RUN pip install --upgrade pip && \
+    conda install --quiet --yes ${TF_PACKAGE} && \
     pip --no-cache-dir install \
     # Tensorflow
     ${TF_PACKAGE} \
@@ -112,7 +113,7 @@ RUN conda create -n py2 python=2 && \
     pip --no-cache-dir install \
     ipykernel \
     # Tensorflow
-    ${TF_PACKAGE_PY_27} \
+    # ${TF_PACKAGE_PY_27} \
     # Tensorflow packages which only supports python 2
     tensorflow-transform \
     tensorflow-serving-api \
@@ -131,7 +132,7 @@ RUN conda create -n py2 python=2 && \
     # Install jupyterlab-manager
     conda install --quiet --yes \
     # nodejs required for jupyterlab-manager
-    nodejs && \
+    nodejs ${TF_PACKAGE_PY_27} && \
     jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
     # Do chown in this layer for significant size savings
     chown -R ${NB_USER}:users $HOME && \
@@ -143,13 +144,13 @@ COPY --chown=jovyan:users requirements.txt /tmp
 # Install common packages from requirements.txt for both python2 and python3
 RUN pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Reinstall Tensorflow due to the unknown bugs
-    pip uninstall tensorflow && \
-    pip --no-cache-dir install ${TF_PACKAGE} && \
+    # pip uninstall tensorflow && \
+    # pip --no-cache-dir install ${TF_PACKAGE} && \
     source activate py2 && \
     pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Reinstall Tensorflow due to the unknown bugs
-    pip uninstall tensorflow && \
-    pip --no-cache-dir install ${TF_PACKAGE_PY_27} && \
+    # pip uninstall tensorflow && \
+    # pip --no-cache-dir install ${TF_PACKAGE_PY_27} && \
 
 # Add basic config
 COPY --chown=jovyan:users jupyter_notebook_config.py /tmp
