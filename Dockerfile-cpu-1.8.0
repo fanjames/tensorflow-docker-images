@@ -93,9 +93,8 @@ RUN cd /tmp && \
 
 # Install base python3 packages
 RUN pip install --upgrade pip && \
+    conda install --quiet --yes ${TF_PACKAGE} && \
     pip --no-cache-dir install \
-    # Tensorflow
-    ${TF_PACKAGE} \
     # Jupyter Stuff
     jupyter \
     jupyterhub \
@@ -103,11 +102,6 @@ RUN pip install --upgrade pip && \
     # Cleanup
     && conda clean -tipsy
 
-# NB: the COPY chown can't expand a bash variable for NB_USER
-COPY --chown=jovyan:users requirements.txt /tmp
-
-# Install python2 and ipython2 kernel for jupyter notebook
-# Install tf packages which only support py2
 RUN conda create -n py2 python=2 && \
     source activate py2 && \
     pip install --upgrade pip && \
@@ -121,33 +115,32 @@ RUN conda create -n py2 python=2 && \
     python -m ipykernel install && \
     # tensorflow-model-analysis is only supported for TF 1.6 and above
     if [[ $INSTALL_TFMA == "yes" ]]; then \
-      pip install --no-cache-dir tensorflow-model-analysis && \
-      # We use --system because if we don't the config is written to the home directory
-      # and the changes are lost when we mount a PV over them.
-      jupyter nbextension install --py --system --symlink tensorflow_model_analysis && \
-      jupyter nbextension enable --py --system tensorflow_model_analysis ; \
+        pip install --no-cache-dir tensorflow-model-analysis && \
+        # We use --system because if we don't the config is written to the home directory
+        # and the changes are lost when we mount a PV over them.
+        jupyter nbextension install --py --system --symlink tensorflow_model_analysis && \
+        jupyter nbextension enable --py --system tensorflow_model_analysis ; \
     fi \
     && \
     # Install jupyterlab-manager
     conda install --quiet --yes \
     # nodejs required for jupyterlab-manager
-    nodejs && \
+    nodejs ${TF_PACKAGE_PY_27} && \
     jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
-    # Install common packages from requirements.txt for both python2 and python3
-    pip --no-cache-dir install -r /tmp/requirements.txt && \
-    # Reinstall Tensorflow due to the unknown bugs
-    pip uninstall tensorflow \
-    conda install --quiet --yes ${TF_PACKAGE_PY_27} \
-    source activate py2 && \
-    pip --no-cache-dir install -r /tmp/requirements.txt && \
     # Do chown in this layer for significant size savings
     chown -R ${NB_USER}:users $HOME && \
     chown -R ${NB_USER}:users $CONDA_DIR
 
+# NB: the COPY chown can't expand a bash variable for NB_USER
+COPY --chown=jovyan:users requirements.txt /tmp
+
+# Install common packages from requirements.txt for both python2 and python3
+RUN pip --no-cache-dir install -r /tmp/requirements.txt && \
+    source activate py2 && \
+    pip --no-cache-dir install -r /tmp/requirements.txt
+
 # Add basic config
 COPY --chown=jovyan:users jupyter_notebook_config.py /tmp
-COPY --chown=jovyan:users mnist-data/ /home/jovyan/mnist-data
-COPY --chown=jovyan:users Tensorflow-examples/ /home/jovyan/Tensorflow-examples
 
 # Wipe $HOME for PVC detection later
 WORKDIR $HOME
@@ -156,6 +149,10 @@ RUN rm -fr $(ls -A $HOME)
 # Copy over init scripts
 COPY --chown=jovyan:users start-singleuser.sh start-notebook.sh start.sh pvc-check.sh /usr/local/bin/
 RUN chmod a+rx /usr/local/bin/*
+
+# Copy the repos of mnist data and tensorflow examples
+COPY --chown=jovyan:users mnist-data/ /home/jovyan/mnist-data
+COPY --chown=jovyan:users Tensorflow-examples/ /home/jovyan/Tensorflow-examples
 
 # Configure container startup
 EXPOSE 8888
