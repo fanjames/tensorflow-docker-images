@@ -14,6 +14,7 @@ pandas
 keras
 matplotlib
 scipy
+pyodps
 
 # Google Cloud related packages
 google-cloud
