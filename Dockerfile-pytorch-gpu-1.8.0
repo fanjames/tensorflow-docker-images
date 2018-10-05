@@ -110,6 +110,7 @@ RUN pip install --upgrade pip && \
 
 RUN conda create -n py2 python=2 && \
     source activate py2 && \
+    conda install -c pytorch -c fastai fastai pytorch-nightly cuda90 && \
     pip install --upgrade pip && \
     pip --no-cache-dir install \
     ipykernel \
@@ -137,7 +138,8 @@ RUN conda create -n py2 python=2 && \
     jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
     # Do chown in this layer for significant size savings
     chown -R ${NB_USER}:users $HOME && \
-    chown -R ${NB_USER}:users $CONDA_DIR
+    chown -R ${NB_USER}:users $CONDA_DIR && \
+    conda clean -tipsy
 
 # NB: the COPY chown can't expand a bash variable for NB_USER
 COPY --chown=jovyan:users requirements.txt /tmp
@@ -148,9 +150,7 @@ RUN pip --no-cache-dir install -r /tmp/requirements.txt && \
     # pip uninstall tensorflow && \
     # pip --no-cache-dir install ${TF_PACKAGE} && \
     source activate py2 && \
-    pip --no-cache-dir install -r /tmp/requirements.txt && \
-    conda install -c pytorch -c fastai fastai pytorch-nightly cuda90 && \
-    conda clean -tipsy
+    pip --no-cache-dir install -r /tmp/requirements.txt
     # Reinstall Tensorflow due to the unknown bugs
     # pip uninstall tensorflow && \
     # pip --no-cache-dir install ${TF_PACKAGE_PY_27} && \
