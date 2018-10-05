@@ -1,7 +1,7 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-ARG BASE_IMAGE=nvidia/cuda:9.2-cudnn7-devel-ubuntu16.04
+ARG BASE_IMAGE=nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
 
 FROM $BASE_IMAGE
 
@@ -97,7 +97,7 @@ RUN cd /tmp && \
 # Install base python3 packages
 RUN pip install --upgrade pip && \
     conda install --quiet --yes ${TF_PACKAGE} && \
-    conda install -c pytorch -c fastai fastai pytorch-nightly cuda92 && \
+    conda install -c pytorch -c fastai fastai pytorch-nightly cuda90 && \
     pip --no-cache-dir install \
     # Tensorflow
     # ${TF_PACKAGE} \
@@ -149,7 +149,8 @@ RUN pip --no-cache-dir install -r /tmp/requirements.txt && \
     # pip --no-cache-dir install ${TF_PACKAGE} && \
     source activate py2 && \
     pip --no-cache-dir install -r /tmp/requirements.txt && \
-    conda install -c pytorch -c fastai fastai pytorch-nightly cuda92
+    conda install -c pytorch -c fastai fastai pytorch-nightly cuda90 && \
+    conda clean -tipsy
     # Reinstall Tensorflow due to the unknown bugs
     # pip uninstall tensorflow && \
     # pip --no-cache-dir install ${TF_PACKAGE_PY_27} && \
