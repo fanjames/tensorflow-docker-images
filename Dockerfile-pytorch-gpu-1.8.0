@@ -110,7 +110,6 @@ RUN pip install --upgrade pip && \
 
 RUN conda create -n py2 python=2 && \
     source activate py2 && \
-    conda install -c pytorch -c fastai fastai pytorch-nightly cuda90 && \
     pip install --upgrade pip && \
     pip --no-cache-dir install \
     ipykernel \
